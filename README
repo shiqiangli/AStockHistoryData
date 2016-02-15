@@ -1,0 +1,29 @@
+TODO List:
+
+======2015.09.09======
+* Solve the random "Segment Fault" while running, optimize the whole C++ code to process 2000+ stocks in 5 seconds
+* Add unique encode support for Chinese in database and http
+* Add a small code snippet for database operations: batch create table, data backup to TXT or EXCEL files
+* Improve sql_generate() API: considering variable data type (not unique 'string' or 'double'); considering NULL values of vector 'stockRealtime'
+* Add support for history stock information scratch, include market-index
+* Add another Timer, considering openning-time every day and openning-day every year of sh/sz market
+* Extend configuration file and make it more flexible (add an XML engine?), considering suspended stocks, index-50, index-300, sh-market, sz-market
+* Add API support for data query, so that Strategy Back-test can be processed, and determine how to input Strategies
+* Add a GUI support? (web or Application UI?)
+
+======2015.09.10======
+* Add various stock lists: sh50, sh180, sh380, sh100, sh150, sz100, sz200, sz300, szgem(grow enterprises market), szsme(small and medium enterprises)
+* Add robust suport to program: if stock list is empty, message should be printed
+* Add utils for stocklist auto-scratch from sse.com.cn/market/sseindex/indexlist, results written to ./stockLists/...
+
+
+
+
+
+ChangLogs:
+
+======2015.09.09======
+* Initial version of stock cralwer, written in C++. ----by shiqiang.
+
+======2015.09.10======
+* Add an input argument support, represent various stock lists.  ----by shiqiang.

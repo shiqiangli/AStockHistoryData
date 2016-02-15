@@ -1,0 +1,54 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  ThreadPool.h
+ *
+ *    Description:  
+ *
+ *        Version:  1.0
+ *        Created:  09/06/2015 08:17:57 PM
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  Shiqiang Li (lsq), lishiqiang@ict.ac.cn
+ *   Organization:  ICT, CAS
+ *
+ * =====================================================================================
+ */
+/*************************************************************************
+	> File Name: ThreadPool.h
+	> Author: 
+	> Mail: 
+	> Created Time: Sun 06 Sep 2015 08:17:57 PM CST
+ ************************************************************************/
+
+#pragma once
+
+#include <vector>
+#include <queue>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <iostream>
+#include <unistd.h>
+
+class ThreadPool
+{
+    public:
+    ThreadPool(int threads);
+    ~ThreadPool();
+
+    // Adds task to a task queue.
+    void enQueque(std::function<void()> f);
+    // Shut down the pool.
+    void shutDown();
+
+    private:
+    std::vector<std::thread> threadPool;
+    std::queue<std::function<void()>> tasks;
+    std::mutex taskMutex;
+    std::condition_variable condition;
+    bool terminate;
+    bool stopped;
+    void invoke();
+};

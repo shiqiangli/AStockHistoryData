@@ -1,0 +1,111 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  ThreadPool.cpp
+ *
+ *    Description:  
+ *
+ *        Version:  1.0
+ *        Created:  09/06/2015 08:26:58 PM
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  Shiqiang Li (lsq), lishiqiang@ict.ac.cn
+ *   Organization:  ICT, CAS
+ *
+ * =====================================================================================
+ */
+
+/*************************************************************************
+	> File Name: ThreadPool.cpp
+	> Author: 
+	> Mail: 
+	> Created Time: Sun 06 Sep 2015 08:26:58 PM CST
+ ************************************************************************/
+
+#include "ThreadPool.h"
+
+ThreadPool::ThreadPool(int threads):terminate(false), stopped(false)
+{
+    for (int i = 0; i < threads; i++)
+    {
+        this->threadPool.emplace_back(std::thread(&ThreadPool::invoke, this));
+    }
+}
+
+void ThreadPool::enQueque(std::function<void()> f)
+{
+    // Scope based locking
+    {
+        // Put unique lock on task mutex
+        std::unique_lock<std::mutex> lock(taskMutex);
+        //push task into queue.
+        tasks.push(f);
+    }
+    // wakeup on thread.
+    condition.notify_one();
+}
+
+void ThreadPool::invoke()
+{
+    std::function<void()> task;
+    while(true)
+    {
+        // Scope based locking.
+        {
+            // put unique lock on task mutex.
+            std::unique_lock<std::mutex> lock(taskMutex);
+            // wait until queue it not empty or terminateion signal is sent.
+            condition.wait(lock, [this]{return !tasks.empty() || terminate;});
+
+            // if termination signal received and queue is empty then exit else continue clearing
+            if(terminate && tasks.empty())
+            {
+                return;
+            }
+            
+            // Get next task in the queue.
+            task = tasks.front();
+
+            // Remove it from the queue.
+            tasks.pop();
+        }
+
+        // execute the task.
+        task();
+    }
+}
+
+void ThreadPool::shutDown()
+{
+    // Scope based locking.
+    {
+        // Put unique lock on the task mutex.
+        std::unique_lock<std::mutex> lock(taskMutex);
+
+        terminate = true;
+    }
+
+    // wake up all threads.
+    condition.notify_all();
+
+    // join all threads
+    for(std::thread &thread : threadPool)
+    {
+        thread.join();
+    }
+
+    // empty workers vector
+    threadPool.empty();
+
+    // Indicate that the pool has been shut down.
+    stopped = true;
+}
+
+ThreadPool::~ThreadPool()
+{
+    if (!stopped)
+    {
+        shutDown();
+    }
+}

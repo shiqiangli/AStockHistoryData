@@ -1,0 +1,12 @@
+
+* createTables.out
+--Create tables in databases, if exists, ignore.
+
+* fetchSHists.out
+--Fetch Shanghai market stocks list.
+
+* updateHistory.out
+--Update stock history information, should run every period(a week or a month).
+
+* updateTradeInfo.out
+--Update every trade information, should run every day after market close.
